@@ -1,0 +1,2 @@
+INSERT INTO public.captains (id, name, password, team_id, username) VALUES (2, 'Legolas Thrandulion', 'hobbit', 2, 'Legy');
+INSERT INTO public.captains (id, name, password, team_id, username) VALUES (3, 'Tom and Jerry', 'bum', 3, 'TJ');
