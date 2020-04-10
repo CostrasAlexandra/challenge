@@ -23,5 +23,7 @@ public interface PlanetDAO extends JpaRepository<Planet, Long> {
             "limit 1;")
     long findClosestPlanetFromCurrentShuttle(long shuttleId, long x, long y, long z);
 
+    Planet findByName(String name);
+
 
 }

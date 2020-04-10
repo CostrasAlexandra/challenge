@@ -27,6 +27,7 @@ public class PlanetService {
 
     private RobotDAO robotDAO;
 
+
     private PlanetConverter planetConverter;
 
 
@@ -53,8 +54,9 @@ public class PlanetService {
         Set<Robot> robots = robotDAO.findAllByNameIn(new ArrayList<>(planetDiscoveredDTO.getRobots()));
         Planet planet = planetDAO
                 .findById(id)
-                .get()
-                .setDescription(planetDiscoveredDTO.getDescription())
+                .get();
+        robots.addAll(planet.getRobots());
+        planet.setDescription(planetDiscoveredDTO.getDescription())
                 .setStatus(planetDiscoveredDTO.getStatus())
                 .setRobots(robots);
         Planet planetUpdated = planetDAO.save(planet);
