@@ -9,6 +9,7 @@ import io.swagger.annotations.ApiOperation;
 import lombok.AllArgsConstructor;
 import org.springframework.data.domain.Page;
 import org.springframework.data.domain.Pageable;
+import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
 
@@ -30,22 +31,36 @@ public class PlanetController {
 
     @GetMapping("/{x}/{y}/{z}")
     @ApiOperation(value = "AttendanceController.findTheClosestPlanet", notes = "Find the closest planet by x,y,z")
-    public long findTheClosestPlanet(@PathVariable long x, @PathVariable long y, @PathVariable long z) {
-        return planetService.findTheClosestPlanet(x, y, z);
+    public ResponseEntity<PlanetDTO> findTheClosestPlanet(@PathVariable long x, @PathVariable long y, @PathVariable long z) {
+        return ResponseEntity.ok(planetService.findTheClosestPlanet(x, y, z));
     }
 
     @GetMapping("{id}/{x}/{y}/{z}")
     @ApiOperation(value = "AttendanceController.findTheClosestPlanetForThisShuttle", notes = "Find the closest planet for a shuttle by it's x,y,z")
-    public long findTheClosestPlanetForThisShuttle(@PathVariable long id,@PathVariable long x,
+    public ResponseEntity<PlanetDTO> findTheClosestPlanetForThisShuttle(@PathVariable long id,@PathVariable long x,
                                                    @PathVariable long y, @PathVariable long z)
     {
-        return planetService.findTheClosestPlanetForThisShuttle(id,x, y, z);
+        return ResponseEntity.ok( planetService.findTheClosestPlanetForThisShuttle(id,x, y, z));
     }
 
-    @PutMapping("/{id}")
+    @PatchMapping("/{id}")
     @ApiOperation(value = "PlanetController.update", notes = "Update an existent planet")
-    public ResponseEntity<PlanetDiscoveredDTO> update(@Valid @RequestBody final PlanetDiscoveredDTO planetDiscoveredDTO,
+    public ResponseEntity<PlanetDiscoveredDTO> update(@RequestBody final PlanetDiscoveredDTO planetDiscoveredDTO,
                          @PathVariable("id") final long id) {
         return ResponseEntity.ok(planetService.updatePlanet(id,planetDiscoveredDTO));
+    }
+
+    @PostMapping
+    @ApiOperation(value = "PlanetController.add", notes = "Add a new planet")
+    public ResponseEntity<Void> add(@RequestBody final Planet planet){
+        planetService.addPlanet(planet);
+        return ResponseEntity.status(HttpStatus.CREATED).build();
+    }
+
+    @DeleteMapping("/{id}")
+    @ApiOperation(value = "PlanetController.delete", notes = "Delete a planet")
+    public ResponseEntity<Void> delete(@PathVariable("id") final long id){
+        planetService.deletePlanet(id);
+        return ResponseEntity.status(HttpStatus.OK).build();
     }
 }

@@ -6,6 +6,7 @@ import com.planets.challenge.dao.PlanetDAO;
 import com.planets.challenge.dao.ShuttleDAO;
 import com.planets.challenge.dao.TeamDAO;
 import com.planets.challenge.model.Planet;
+import com.planets.challenge.service.ExplorationLogService;
 import org.springframework.boot.CommandLineRunner;
 import org.springframework.context.annotation.Bean;
 import org.springframework.context.annotation.Configuration;
@@ -17,7 +18,7 @@ import java.util.Set;
 public class BeansConfiguration {
 
     @Bean
-    public CommandLineRunner commandLineRunner(PlanetDAO planetDAO, CaptainDAO captainDAO, TeamDAO teamDAO, ShuttleDAO shuttleDAO){
+    public CommandLineRunner commandLineRunner(PlanetDAO planetDAO, CaptainDAO captainDAO, TeamDAO teamDAO, ShuttleDAO shuttleDAO, ExplorationLogService explorationLogService){
         return new CommandLineRunner() {
             @Override
             public void run(String... args) throws Exception {
@@ -38,6 +39,8 @@ public class BeansConfiguration {
 //                    System.out.println(planet.getName());
 //                    //System.out.println(planet.getShuttleId());
 //                }
+
+                //System.out.println(explorationLogService.findAll());
 
             }
         };

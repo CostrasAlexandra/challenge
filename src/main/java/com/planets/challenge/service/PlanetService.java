@@ -2,6 +2,7 @@ package com.planets.challenge.service;
 
 import com.planets.challenge.api.dto.PlanetDTO;
 import com.planets.challenge.api.dto.PlanetDiscoveredDTO;
+import com.planets.challenge.api.exception.NotFoundException;
 import com.planets.challenge.dao.PlanetDAO;
 import com.planets.challenge.dao.RobotDAO;
 import com.planets.challenge.dao.ShuttleDAO;
@@ -11,11 +12,8 @@ import org.springframework.data.domain.Page;
 import org.springframework.data.domain.Pageable;
 import org.springframework.stereotype.Service;
 
-import java.util.ArrayList;
-import java.util.List;
-import java.util.Set;
+import java.util.*;
 import java.util.stream.Collectors;
-import java.util.Map;
 
 @Service
 @AllArgsConstructor
@@ -42,35 +40,44 @@ public class PlanetService {
         return planetsPage.map(planet -> planetConverter.convert(planet, shuttleMap));
     }
 
-    public long findTheClosestPlanet(final long x, final long y, final long z) {
-        return planetDAO.findByShortestDistance(x, y, z);
+    public PlanetDTO findTheClosestPlanet(final long x, final long y, final long z) {
+        Planet planet =  planetDAO.findByShortestDistance(x, y, z);
+        return planetConverter.convert(planet);
     }
 
-    public long findTheClosestPlanetForThisShuttle(final long shuttleId, final long x, final long y, final long z){
-        return planetDAO.findClosestPlanetFromCurrentShuttle(shuttleId,x,y,z);
+    public PlanetDTO findTheClosestPlanetForThisShuttle(final long shuttleId, final long x, final long y, final long z){
+        Planet planet = planetDAO.findClosestPlanetFromCurrentShuttle(shuttleId,x,y,z);
+        return planetConverter.convert(planet);
     }
 
     public PlanetDiscoveredDTO updatePlanet(long id, PlanetDiscoveredDTO planetDiscoveredDTO){
-        Set<Robot> robots = robotDAO.findAllByNameIn(new ArrayList<>(planetDiscoveredDTO.getRobots()));
-        Planet planet = planetDAO
-                .findById(id)
-                .get();
-        robots.addAll(planet.getRobots());
-        planet.setDescription(planetDiscoveredDTO.getDescription())
-                .setStatus(planetDiscoveredDTO.getStatus())
-                .setRobots(robots);
+        Set<Robot> robots = null;
+
+        if(planetDiscoveredDTO.getRobots() != null && planetDiscoveredDTO.getRobots().size() != 0) {
+            robots = robotDAO.findAllByNameIn(new ArrayList<>(planetDiscoveredDTO.getRobots()));
+        }
+            Planet planet = planetDAO
+                    .findById(id)
+                    .orElseThrow(() -> new NotFoundException("Planet with id: " + id + " not found"));
+
+       planet = planetConverter.updatePlanetData(planet, planetDiscoveredDTO, robots);
+
         Planet planetUpdated = planetDAO.save(planet);
         Team team = shuttleDAO
                 .findById(planetUpdated.getShuttleId())
-                .get()
+                .orElseThrow(()-> new NotFoundException("Shuttle with id: "+planetUpdated.getShuttleId() +" not found"))
                 .getTeam();
+
         return planetConverter.convert(planetUpdated,team);
-
-
-
     }
 
+    public void addPlanet(Planet planet){
+        Planet newPlanet = planetDAO.save(planet);
+    }
 
+    public void deletePlanet(long id) {
+        planetDAO.deleteById(id);
+    }
 
 
 }
